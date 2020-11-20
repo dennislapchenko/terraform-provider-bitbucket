@@ -1,0 +1,19 @@
+image: golang:1.14-alpine
+
+pipelines:
+  custom:
+    build-release:
+      - step:
+          name: Build new version
+          script:
+            - export VERSION=$(cat VERSION)
+            - go build -o bin/terraform-provider-bitbucket_$VERSION
+          artifacts:
+            - bin/*
+      - step:
+          script:
+            - pipe: atlassian/bitbucket-upload-file:0.3.2
+              variables:
+                BITBUCKET_USERNAME: $BITBUCKET_USERNAME
+                BITBUCKET_APP_PASSWORD: $BITBUCKET_PASSWORD
+                FILENAME: "bin/terraform-provider-bitbucket_$(cat VERSION)"
